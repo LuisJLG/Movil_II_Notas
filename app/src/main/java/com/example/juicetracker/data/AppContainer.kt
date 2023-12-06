@@ -24,4 +24,5 @@ interface AppContainer {
     val juiceRepository: JuiceRepository
     val notaRepository: NotaRepository
     val tareaRepository: TareaRepository
+    val multimediaRepository: MultimediaRepository
 }

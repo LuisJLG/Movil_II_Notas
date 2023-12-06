@@ -37,4 +37,8 @@ class AppDataContainer(private val context: Context) : AppContainer {
     override val tareaRepository: TareaRepository by lazy {
         RoomTareaRepository(AppDatabase.getDatabase(context).juiceDao())
     }
+
+    override val multimediaRepository: MultimediaRepository by lazy {
+        RoomMultimediaRepository(AppDatabase.getDatabase(context).multimediaDao())
+    }
 }

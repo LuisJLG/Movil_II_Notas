@@ -31,7 +31,8 @@ import kotlinx.coroutines.launch
 class JuiceTrackerViewModel(
     private val juiceRepository: JuiceRepository,
     private val notaRepository: NotaRepository,
-    private val tareaRepository: TareaRepository
+    private val tareaRepository: TareaRepository,
+    private val multimediaRepository: MultimediaRepository
 ) : ViewModel() {
     private val emptyJuice = Juice(
         0,
@@ -48,7 +49,6 @@ class JuiceTrackerViewModel(
         0,
         "",
         "",
-        "",
         ""
     )
 
@@ -56,8 +56,17 @@ class JuiceTrackerViewModel(
         0,
         "",
         "",
-        "",
         ""
+    )
+
+    private val emptyMultimedia = Multimedia(
+        0,
+        "",
+        null,
+        null,
+        null,
+        null,
+        null
     )
 
 
@@ -80,6 +89,7 @@ class JuiceTrackerViewModel(
         juiceRepository.deleteJuice(juice)
     }
 
+    //////////////////////////////|Nota|\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     private val _currentNotaStream = MutableStateFlow(emptyNota)
     val currentNotaStream: StateFlow<Nota> = _currentNotaStream
     val notaListStream: Flow<List<Nota>> = notaRepository.notaStream
@@ -99,6 +109,8 @@ class JuiceTrackerViewModel(
         notaRepository.deleteNota(nota)
     }
 
+
+    //////////////////////////////|Tarea|\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     private val _currentTareaStream = MutableStateFlow(emptyTarea)
     val currentTareaStream: StateFlow<Tarea> = _currentTareaStream
     val tareaListStream: Flow<List<Tarea>> = tareaRepository.tareaStream
@@ -116,5 +128,22 @@ class JuiceTrackerViewModel(
 
     fun deleteTarea(tarea: Tarea) = viewModelScope.launch {
         tareaRepository.deleteTarea(tarea)
+    }
+
+
+    //////////////////////////////|Multimedia|\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    private val _currentMultimediaStream = MutableStateFlow(emptyMultimedia)
+    val currentMultimediaStream: StateFlow<Multimedia> = _currentMultimediaStream
+    val multimediaListStream: Flow<List<Multimedia>> = multimediaRepository.multimediaStream
+
+    fun resetCurrentMultimedia() = _currentMultimediaStream.update { emptyMultimedia }
+    fun updateCurrentMultimedia(multimedia: Multimedia) = _currentMultimediaStream.update { multimedia }
+
+    fun saveMultimedia() = viewModelScope.launch {
+            multimediaRepository.addMultimedia(_currentMultimediaStream.value)
+    }
+
+    fun deleteMultimedia(multimedia: Multimedia) = viewModelScope.launch {
+        multimediaRepository.deleteMultimedia(multimedia)
     }
 }

@@ -22,8 +22,7 @@ import kotlinx.coroutines.flow.Flow
  * Interface for [MultimediaRepository] which contains method to access and modify juice items
  */
 interface MultimediaRepository {
-    val multimediaStream: List<Multimedia>
+    val multimediaStream: Flow<List<Multimedia>>
     suspend fun addMultimedia(multimedia: Multimedia)
     suspend fun deleteMultimedia(multimedia: Multimedia)
-    suspend fun updateMultimedia(multimedia: Multimedia)
 }

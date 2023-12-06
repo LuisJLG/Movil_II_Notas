@@ -24,6 +24,7 @@ import com.example.juicetracker.data.Model.*
 @Database(entities = [Juice::class, Nota::class, Tarea::class, Multimedia::class], version = 2)
 abstract class AppDatabase: RoomDatabase() {
     abstract fun juiceDao(): JuiceDao
+    abstract fun multimediaDao(): MultimediaDao
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null

@@ -22,12 +22,11 @@ import kotlinx.coroutines.flow.Flow
 
 /**
  * Implementation of [MultimediaRepository] interface
- * which allow access and modification of Juice items through [JuiceDao]
+ * which allow access and modification of Juice items through [MultimediaDao]
  */
 class RoomMultimediaRepository(private val multimediaDao: MultimediaDao) : MultimediaRepository {
-    override val multimediaStream: List<Multimedia> = multimediaDao.getMultimedia()
+    override val multimediaStream: Flow<List<Multimedia>> = multimediaDao.getMultimedia(idNota = 1)
 
     override suspend fun addMultimedia(multimedia: Multimedia): Unit = multimediaDao.insertMultimedia(multimedia)
     override suspend fun deleteMultimedia(multimedia: Multimedia) = multimediaDao.deleteMultimedia(multimedia)
-    override suspend fun updateMultimedia(multimedia: Multimedia) = multimediaDao.//updateMultimedia(multimedia)
 }

@@ -15,7 +15,6 @@
  */
 package com.example.juicetracker.data.Model
 
-import android.os.Parcelable
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
 import androidx.room.Entity
@@ -48,9 +47,8 @@ data class Nota(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val noteTitle: String,
-    val noteSubTitle: String,
-    val notetvDate: String,
-    val noteBody: String
+    val noteBody: String,
+    val notetvDate: String
 )
 
 @Entity(tableName = "tarea")
@@ -58,9 +56,9 @@ data class Tarea(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val tareaTitle: String,
-    val tareaSubTitle: String,
-    val tareatvDate: String,
-    val tareaBody: String
+    val tareaBody: String,
+    val tareatvDate: String
+
 )
 
 enum class JuiceColor(val color: Color, @StringRes val label: Int) {

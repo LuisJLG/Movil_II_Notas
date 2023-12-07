@@ -11,10 +11,7 @@ class Multimediab (
     val type: String,
     val path: String,
     val description: String
-) /*{
-    constructor(idNote: Int, type: String, path: String, description: String)
-            : this(0, idNote, type, path, description )
-}*/
+)
 
 
 @Entity
@@ -27,7 +24,4 @@ class Multimedia (
     val idTarea: Int?,
     val descripcion: String?,
     val ruta: String?
-) /*{
-    constructor(uri: String, tipo: Int, idNota: Int, idTarea: Int, type: String, path: String, description: String)
-            : this(0, idNote, type, path, description )
-}*/
+)

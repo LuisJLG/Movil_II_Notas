@@ -29,6 +29,7 @@
     <string name="add_video">añadir video</string>
     <string name="add_audio">añadir audio</string>
     <string name="record_audio">Permiso para grabar</string>
+    <string name="approximate_location_access">Acceso a ubicacion aproximada</string>
     <string name="red">Red</string>
     <string name="blue">Blue</string>
     <string name="green">Green</string>

@@ -22,7 +22,9 @@ import androidx.annotation.RequiresPermission
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -36,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.juicetracker.mapas.mapasosmandroidcompose.OSMComposeMapa
 
 
 import com.google.android.gms.location.LocationServices
@@ -70,6 +73,9 @@ fun CurrentLocationScreen() {
 fun CurrentLocationContent(usePreciseLocation: Boolean) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    var controlmapa by remember { mutableStateOf(false)}
+    var longitud by remember { mutableStateOf(0.0) }
+    var latitud by remember { mutableStateOf(0.0) }
     val locationClient = remember {
         LocationServices.getFusedLocationProviderClient(context)
     }
@@ -123,14 +129,28 @@ fun CurrentLocationContent(usePreciseLocation: Boolean) {
                         locationInfo =
                             "Current location is \n" + "lat : ${fetchedLocation.latitude}\n" +
                                     "long : ${fetchedLocation.longitude}\n" + "fetched at ${System.currentTimeMillis()}"
+                        longitud = fetchedLocation.longitude
+                        latitud = fetchedLocation.latitude
                     }
+                    controlmapa = true
                 }
             },
         ) {
-            Text(text = "Get current location")
+            Column {
+                Text(text = "Get current location")
+            }
         }
         Text(
-            text = locationInfo,
+            text = locationInfo+"${controlmapa}",
         )
+
+        Spacer(modifier = Modifier.height(190.dp))
+        if (controlmapa){
+            OSMComposeMapa(
+                longitud = longitud,
+                latitud = (latitud)
+            )
+        }
+
     }
 }

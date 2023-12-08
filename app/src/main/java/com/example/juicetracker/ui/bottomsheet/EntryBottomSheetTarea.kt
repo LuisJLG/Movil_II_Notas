@@ -50,7 +50,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.juicetracker.ImagePicker
 import com.example.juicetracker.R
-import com.example.juicetracker.data.Model.Juice
+import com.example.juicetracker.data.Model.Tarea
 import com.example.juicetracker.data.Model.JuiceColor
 import com.example.juicetracker.ui.JuiceTrackerViewModel
 import java.util.Locale
@@ -71,7 +71,7 @@ fun EntryBottomSheetTarea(
     content: @Composable () -> Unit,
 ) {
     // Recopilando el estado actual del jugo mediante un StateFlow
-    val juice by juiceTrackerViewModel.currentJuiceStream.collectAsState()
+    val tarea by juiceTrackerViewModel.currentTareaStream.collectAsState()//currentJuiceStream.collectAsState()
 
     // Construyendo el BottomSheetScaffold con encabezado, formulario y contenido personalizado
     BottomSheetScaffold(
@@ -83,8 +83,8 @@ fun EntryBottomSheetTarea(
                 SheetHeaderTarea(Modifier.padding(dimensionResource(R.dimen.padding_small)))
                 // Sección de formulario de la hoja inferior
                 SheetFormTarea(
-                    juice = juice,
-                    onUpdateJuice = juiceTrackerViewModel::updateCurrentJuice,
+                    tarea = tarea,
+                    onUpdateTarea = juiceTrackerViewModel::updateCurrentTarea,
                     onCancel = onCancel,
                     onSubmit = onSubmit,
                     modifier = Modifier.padding(
@@ -106,7 +106,7 @@ fun SheetHeaderTarea(modifier: Modifier = Modifier) {
         // Texto del titular para la hoja inferior
         Text(
             modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
-            text = stringResource(R.string.bottom_sheet_headline),
+            text = stringResource(R.string.bottom_sheet_headlineTarea),
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
         )
         // Línea divisoria
@@ -117,8 +117,8 @@ fun SheetHeaderTarea(modifier: Modifier = Modifier) {
 // Función componible para el contenido del formulario de la hoja inferior
 @Composable
 fun SheetFormTarea(
-    juice: Juice,
-    onUpdateJuice: (Juice) -> Unit,
+    tarea: Tarea,
+    onUpdateTarea: (Tarea) -> Unit,
     onCancel: () -> Unit,
     onSubmit: () -> Unit,
     modifier: Modifier = Modifier
@@ -132,28 +132,19 @@ fun SheetFormTarea(
         item {
             // Fila de entrada para el nombre del jugo
             TextInputRowTarea(
-                inputLabel = stringResource(R.string.juice_name),
-                fieldValue = juice.name,
-                onValueChange = { name -> onUpdateJuice(juice.copy(name = name)) },
+                inputLabel = stringResource(R.string.tarea_name),
+                fieldValue = tarea.tareaTitle,
+                onValueChange = { titulo -> onUpdateTarea(tarea.copy(tareaTitle = titulo)) },
                 modifier = Modifier.fillMaxWidth(),
             )
         }
         item {
             // Fila de entrada para la descripción del jugo
             TextInputRowTarea(
-                inputLabel = stringResource(R.string.juice_description),
-                fieldValue = juice.description,
-                onValueChange = { description -> onUpdateJuice(juice.copy(description = description)) },
+                inputLabel = stringResource(R.string.tarea_description),
+                fieldValue = tarea.tareaBody,
+                onValueChange = { description -> onUpdateTarea(tarea.copy(tareaBody = description)) },
                 modifier = Modifier.fillMaxWidth()
-            )
-        }
-        item {
-            // Fila del selector de color para seleccionar el color del jugo
-            ColorSpinnerRow(
-                colorSpinnerPosition = findColorIndex(juice.color),
-                onColorChange = { color ->
-                    onUpdateJuice(juice.copy(color = JuiceColor.values()[color].name))
-                }
             )
         }
         item {
@@ -171,7 +162,7 @@ fun SheetFormTarea(
                     .padding(bottom = dimensionResource(R.dimen.padding_medium)),
                 onCancel = onCancel,
                 onSubmit = onSubmit,
-                submitButtonEnabled = juice.name.isNotEmpty(),
+                submitButtonEnabled = tarea.tareaTitle.isNotEmpty()
             )
         }
     }
@@ -280,7 +271,7 @@ fun TextInputRowTarea(
     modifier: Modifier = Modifier
 ) {
     // Fila de entrada genérica con un campo de texto
-    InputRow(inputLabel, modifier) {
+    InputRowTarea(inputLabel, modifier) {
         TextField(
             modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_small)),
             value = fieldValue,
@@ -322,12 +313,6 @@ fun InputRowTarea(
             content()
         }
     }
-}
-
-// Función para encontrar el índice de un color dado en el enum JuiceColor
-private fun findColorIndex(color: String): Int {
-    val juiceColor = JuiceColor.valueOf(color)
-    return JuiceColor.values().indexOf(juiceColor)
 }
 
 //METODO TIPO BOTON PARA Las imagenes//Efren//

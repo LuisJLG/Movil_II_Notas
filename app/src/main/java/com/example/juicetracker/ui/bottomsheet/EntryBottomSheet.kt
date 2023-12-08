@@ -52,6 +52,7 @@ import com.example.juicetracker.ImagePicker
 import com.example.juicetracker.R
 import com.example.juicetracker.data.Model.Juice
 import com.example.juicetracker.data.Model.JuiceColor
+import com.example.juicetracker.mapas.location.CurrentLocationScreen
 import com.example.juicetracker.ui.JuiceTrackerViewModel
 import java.util.Locale
 
@@ -91,6 +92,7 @@ fun EntryBottomSheet(
                         horizontal = dimensionResource(R.dimen.padding_medium)
                     )
                 )
+                CurrentLocationScreen()
             }
         }
     ) {

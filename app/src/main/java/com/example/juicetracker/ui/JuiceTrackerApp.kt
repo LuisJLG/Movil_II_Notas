@@ -34,10 +34,13 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.juicetracker.R
 import com.example.juicetracker.ui.bottomsheet.EntryBottomSheet
+import com.example.juicetracker.ui.bottomsheet.EntryBottomSheetTarea
 import com.example.juicetracker.ui.homescreen.AdBanner
 import com.example.juicetracker.ui.homescreen.JuiceTrackerFAB
 import com.example.juicetracker.ui.homescreen.JuiceTrackerList
 import com.example.juicetracker.ui.homescreen.JuiceTrackerTopAppBar
+import com.example.juicetracker.ui.homescreen.TareaTrackerFAB
+import com.example.juicetracker.ui.homescreen.TareaTrackerList
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,8 +56,79 @@ fun JuiceTrackerApp(
         )
     )
 
+    val bottomSheetScaffoldStateTarea = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            skipHiddenState = false,
+        )
+    )
+
     val scope = rememberCoroutineScope()
     val trackerState by juiceTrackerViewModel.juiceListStream.collectAsState(emptyList())
+
+    val scopeTarea = rememberCoroutineScope()
+    val trackerStateTarea by juiceTrackerViewModel.tareaListStream.collectAsState(emptyList())
+
+    EntryBottomSheetTarea(
+        juiceTrackerViewModel = juiceTrackerViewModel,
+        sheetScaffoldState = bottomSheetScaffoldStateTarea,
+        modifier = Modifier,
+        onCancel = {
+            scopeTarea.launch {
+                bottomSheetScaffoldStateTarea.bottomSheetState.hide()
+            }
+        },
+        onSubmit = {
+            juiceTrackerViewModel.saveJuice()
+            scopeTarea.launch {
+                bottomSheetScaffoldStateTarea.bottomSheetState.hide()
+            }
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                JuiceTrackerTopAppBar()
+            },
+            floatingActionButton = {
+                Column {
+                    JuiceTrackerFAB(
+                        onClick = {
+                            juiceTrackerViewModel.resetCurrentJuice()
+                            scope.launch { bottomSheetScaffoldStateTarea.bottomSheetState.expand() }
+                        }
+                    )
+                    TareaTrackerFAB(
+                        onClick = {
+                            juiceTrackerViewModel.resetCurrentTarea()
+                            scopeTarea.launch { bottomSheetScaffoldStateTarea.bottomSheetState.expand()}
+                        }
+                    )
+                }
+
+            }
+        ) { contentPadding ->
+            Column(Modifier.padding(contentPadding)) {
+                /*AdBanner(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            top = dimensionResource(R.dimen.padding_medium),
+                            bottom = dimensionResource(R.dimen.padding_small)
+                        )
+                )*/
+                /*TareaTrackerList(
+                    tareas = trackerStateTarea,
+                    onDelete = { tarea -> juiceTrackerViewModel.deleteTarea(tarea) },
+                    onUpdate = { tarea ->
+                        juiceTrackerViewModel.updateCurrentTarea(tarea)
+                        scopeTarea.launch {
+                            bottomSheetScaffoldState.bottomSheetState.expand()
+                        }
+                    },
+                )*/
+            }
+        }
+    }
 
     EntryBottomSheet(
         juiceTrackerViewModel = juiceTrackerViewModel,
@@ -77,12 +151,21 @@ fun JuiceTrackerApp(
                 JuiceTrackerTopAppBar()
             },
             floatingActionButton = {
-                JuiceTrackerFAB(
-                    onClick = {
-                        juiceTrackerViewModel.resetCurrentJuice()
-                        scope.launch { bottomSheetScaffoldState.bottomSheetState.expand() }
-                    }
-                )
+                Column {
+                    JuiceTrackerFAB(
+                        onClick = {
+                            juiceTrackerViewModel.resetCurrentJuice()
+                            scope.launch { bottomSheetScaffoldState.bottomSheetState.expand() }
+                        }
+                    )
+                    TareaTrackerFAB(
+                        onClick = {
+                            juiceTrackerViewModel.resetCurrentTarea()
+                            scope.launch { bottomSheetScaffoldState.bottomSheetState.expand()}
+                        }
+                    )
+                }
+
             }
         ) { contentPadding ->
             Column(Modifier.padding(contentPadding)) {

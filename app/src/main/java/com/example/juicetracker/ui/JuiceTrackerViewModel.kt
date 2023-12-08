@@ -49,12 +49,15 @@ class JuiceTrackerViewModel(
         0,
         "",
         "",
+        "",
         ""
     )
 
     private val emptyTarea = Tarea(
         0,
         "",
+        "",
+        0,
         "",
         ""
     )

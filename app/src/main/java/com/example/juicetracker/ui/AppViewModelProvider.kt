@@ -29,7 +29,8 @@ object AppViewModelProvider {
             JuiceTrackerViewModel(
                 juiceTrackerApplication().container.juiceRepository,
                 juiceTrackerApplication().container.notaRepository,
-                juiceTrackerApplication().container.tareaRepository
+                juiceTrackerApplication().container.tareaRepository,
+                juiceTrackerApplication().container.multimediaRepository
             )
         }
     }

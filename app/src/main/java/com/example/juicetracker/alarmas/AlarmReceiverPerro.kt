@@ -31,11 +31,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.example.juicetracker.R
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-
+//esto corresponde a AlarmSchedulerImpl parte interfaz
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlarmasScreen( alarmScheduler: AlarmScheduler){
@@ -107,6 +108,7 @@ fun AlarmasScreen( alarmScheduler: AlarmScheduler){
     }
 }
 
+//aca es confuso pero AlarmApp y receiver
 class AlarmReceiverPerro : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         val message = intent?.getStringExtra("EXTRA_MESSAGE") ?: return
@@ -125,16 +127,20 @@ class AlarmReceiverPerro : BroadcastReceiver() {
     }
 }
 
+//AlarmItem de jony
 data class AlarmItem(
     val alarmTime : LocalDateTime,
     val message : String
 )
 
+//clase AlarmScheduler de jony
 interface AlarmScheduler {
     fun schedule(alarmItem: AlarmItem)
     fun cancel(alarmItem: AlarmItem)
 }
 
+/*Esto es equivalente a la clase AlarmSchedulerImpl
+usada por jony, cuando separo todo*/
 class AlarmSchedulerImpl(
     private val context: Context
 ) : AlarmScheduler{
@@ -144,7 +150,12 @@ class AlarmSchedulerImpl(
 
     override fun schedule(alarmItem: AlarmItem) {
         val intent = Intent(context, AlarmReceiverPerro::class.java).apply {
-            putExtra("EXTRA_MESSAGE", alarmItem.message)
+            putExtra("EXTRA_MESSAGE", alarmItem.message) //aqui pon lo que quieras y agrega campos que desees
+            /*
+            putExtra("EXTRA_MESSAGE", "puños")
+            putExtra("EXTRA_TITLE", "culero")
+            putExtra("IMAGE", recuerso)
+            */
         }
 
         alarmManager.set(
@@ -171,3 +182,33 @@ class AlarmSchedulerImpl(
         )
     }
 }
+
+/*override fun onReceive(context: Context?, intent: Intent?) {
+    val message = intent?.getStringExtra("EXTRA_MESSAGE") ?: return
+    val titulo = intent?.getStringExtra("EXTRA_TITLE") ?: return
+    val channelId = "alarm_id"
+    val recurso = intent.getIntExtra("IMAGE", 0)
+    val drawable = context?.let { ContextCompat.getDrawable(it, recurso) }
+    context?.let {ctx ->
+        val notificationManager = ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val GROUP_KEY = "mi_grupo_notificaciones"
+
+        val builder = NotificationCompat.Builder(ctx, channelId)
+            .setSmallIcon(R.drawable.camara)
+            .setContentTitle(titulo)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setGroup(GROUP_KEY)
+
+        val summaryNotification = NotificationCompat.Builder(ctx, channelId)
+            .setContentTitle("Título del resumen del grupo")
+            .setContentText("Resumen del grupo")
+            .setSmallIcon(R.drawable.camara)
+            .setGroup(GROUP_KEY) // Asigna el mismo grupo al resumen
+            .setGroupSummary(true)
+
+        notificationManager.notify(1, builder.build())
+        notificationManager.notify(2147483647 , summaryNotification.build())
+    }
+    println("Alarm triggered: $message")
+}*/

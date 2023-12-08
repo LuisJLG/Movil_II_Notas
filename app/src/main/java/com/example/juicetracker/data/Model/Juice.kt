@@ -48,7 +48,8 @@ data class Nota(
     val id: Int,
     val noteTitle: String,
     val noteBody: String,
-    val notetvDate: String
+    val notetvDate: String,
+    val multimedia: String?
 )
 
 @Entity(tableName = "tarea")
@@ -57,7 +58,9 @@ data class Tarea(
     val id: Int,
     val tareaTitle: String,
     val tareaBody: String,
-    val tareatvDate: String
+    val estatus: Int,
+    val tareatvDate: String,
+    val tareaDateFinal: String
 
 )
 

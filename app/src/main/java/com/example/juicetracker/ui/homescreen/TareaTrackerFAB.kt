@@ -17,6 +17,7 @@ package com.example.juicetracker.ui.homescreen
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -34,7 +35,7 @@ fun TareaTrackerFAB(
         modifier = modifier
     ) {
         Icon(
-            imageVector = Icons.Default.Add,
+            imageVector = Icons.Default.List,
             contentDescription = stringResource(R.string.add_task),
         )
     }

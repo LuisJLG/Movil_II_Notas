@@ -19,11 +19,16 @@
     <string name="delete">Borrar</string>
     <string name="juice_name">Titulo</string>
     <string name="juice_description">Descripcion</string>
+    <string name="nota_name">Titulo</string>
+    <string name="nota_description">Descripcion</string>
+    <string name="tarea_name">Titulo</string>
+    <string name="tarea_description">Descripcion</string>
     <string name="save">Guardar</string>
     <string name="color">Color</string>
     <string name="add_juice">Añadir nota</string>
     <string name="add_task">Añadir tarea</string>
     <string name="bottom_sheet_headline">Nota</string>
+    <string name="bottom_sheet_headlineTarea">Tarea</string>
     <string name="juice_color">%s juice</string>
     <string name="add_image"> añadir imagen</string>
     <string name="add_video">añadir video</string>

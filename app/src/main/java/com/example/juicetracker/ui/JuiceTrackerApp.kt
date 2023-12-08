@@ -38,6 +38,7 @@ import com.example.juicetracker.ui.homescreen.AdBanner
 import com.example.juicetracker.ui.homescreen.JuiceTrackerFAB
 import com.example.juicetracker.ui.homescreen.JuiceTrackerList
 import com.example.juicetracker.ui.homescreen.JuiceTrackerTopAppBar
+import com.example.juicetracker.ui.homescreen.TareaTrackerFAB
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,12 +78,21 @@ fun JuiceTrackerApp(
                 JuiceTrackerTopAppBar()
             },
             floatingActionButton = {
-                JuiceTrackerFAB(
-                    onClick = {
-                        juiceTrackerViewModel.resetCurrentJuice()
-                        scope.launch { bottomSheetScaffoldState.bottomSheetState.expand() }
-                    }
-                )
+                Column {
+                    JuiceTrackerFAB(
+                        onClick = {
+                            juiceTrackerViewModel.resetCurrentJuice()
+                            scope.launch { bottomSheetScaffoldState.bottomSheetState.expand() }
+                        }
+                    )
+                    TareaTrackerFAB(
+                        onClick = {
+                            juiceTrackerViewModel.resetCurrentTarea()//resetCurrentJuice()
+                            scope.launch { bottomSheetScaffoldState.bottomSheetState.expand()}
+                        }
+                    )
+                }
+
             }
         ) { contentPadding ->
             Column(Modifier.padding(contentPadding)) {

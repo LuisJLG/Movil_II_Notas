@@ -30,7 +30,10 @@ import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -42,6 +45,9 @@ import com.example.juicetracker.ui.homescreen.JuiceTrackerFAB
 import com.example.juicetracker.ui.homescreen.JuiceTrackerList
 import com.example.juicetracker.ui.homescreen.JuiceTrackerTopAppBar
 import com.example.juicetracker.ui.homescreen.TareaTrackerFAB
+import com.example.juicetracker.ui.homescreen.TareaTrackerList
+import com.example.juicetracker.ui.homescreen.NotaTrackerList
+
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -51,7 +57,15 @@ fun JuiceTrackerApp(
     juiceTrackerViewModel: JuiceTrackerViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
+    var controlSheet by remember { mutableStateOf(true) }
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            skipHiddenState = false,
+        )
+    )
+
+    val bottomSheetScaffoldStateTarea = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(
             initialValue = SheetValue.Hidden,
             skipHiddenState = false,
@@ -61,63 +75,147 @@ fun JuiceTrackerApp(
     val scope = rememberCoroutineScope()
     val trackerState by juiceTrackerViewModel.juiceListStream.collectAsState(emptyList())
 
-    EntryBottomSheet(
-        juiceTrackerViewModel = juiceTrackerViewModel,
-        sheetScaffoldState = bottomSheetScaffoldState,
-        modifier = Modifier,
-        onCancel = {
-            scope.launch {
-                bottomSheetScaffoldState.bottomSheetState.hide()
+    val trackerStateNota by juiceTrackerViewModel.notaListStream.collectAsState(emptyList())
+
+
+    val scopeTarea = rememberCoroutineScope()
+    val trackerStateTarea by juiceTrackerViewModel.tareaListStream.collectAsState(emptyList())
+
+    if (controlSheet){
+        EntryBottomSheetTarea(
+            juiceTrackerViewModel = juiceTrackerViewModel,
+            sheetScaffoldState = bottomSheetScaffoldStateTarea,
+            modifier = Modifier,
+            onCancel = {
+                scopeTarea.launch {
+                    bottomSheetScaffoldStateTarea.bottomSheetState.hide()
+                }
+            },
+            onSubmit = {
+                juiceTrackerViewModel.saveJuice()
+                scopeTarea.launch {
+                    bottomSheetScaffoldStateTarea.bottomSheetState.hide()
+                }
             }
-        },
-        onSubmit = {
-            juiceTrackerViewModel.saveJuice()
-            scope.launch {
-                bottomSheetScaffoldState.bottomSheetState.hide()
+        ) {
+            Scaffold(
+                topBar = {
+                    JuiceTrackerTopAppBar()
+                },
+                floatingActionButton = {
+                    Column {
+                        JuiceTrackerFAB(
+                            onClick = {
+                                juiceTrackerViewModel.resetCurrentJuice()
+                                scope.launch { bottomSheetScaffoldState.bottomSheetState.expand() }
+                                controlSheet = true
+                            }
+                        )
+                        TareaTrackerFAB(
+                            onClick = {
+                                juiceTrackerViewModel.resetCurrentTarea()
+                                scopeTarea.launch { bottomSheetScaffoldStateTarea.bottomSheetState.expand()}
+                                controlSheet = false
+                            }
+                        )
+                    }
+
+                }
+            ) { contentPadding ->
+                Column(Modifier.padding(contentPadding)) {
+                    /*AdBanner(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                top = dimensionResource(R.dimen.padding_medium),
+                                bottom = dimensionResource(R.dimen.padding_small)
+                            )
+                    )*/
+                    /*TareaTrackerList(
+                        tareas = trackerStateTarea,
+                        onDelete = { tarea -> juiceTrackerViewModel.deleteTarea(tarea) },
+                        onUpdate = { tarea ->
+                            juiceTrackerViewModel.updateCurrentTarea(tarea)
+                            scopeTarea.launch {
+                                bottomSheetScaffoldState.bottomSheetState.expand()
+                            }
+                        },
+                    )*/
+                }
             }
         }
-    ) {
-        Scaffold(
-            topBar = {
-                JuiceTrackerTopAppBar()
+    }
+    else{
+        EntryBottomSheet(
+            juiceTrackerViewModel = juiceTrackerViewModel,
+            sheetScaffoldState = bottomSheetScaffoldState,
+            modifier = Modifier,
+            onCancel = {
+                scope.launch {
+                    bottomSheetScaffoldState.bottomSheetState.hide()
+                }
             },
-            floatingActionButton = {
-                Column {
-                    JuiceTrackerFAB(
-                        onClick = {
-                            juiceTrackerViewModel.resetCurrentJuice()
-                            scope.launch { bottomSheetScaffoldState.bottomSheetState.expand() }
-                        }
+            onSubmit = {
+                juiceTrackerViewModel.saveJuice()
+                scope.launch {
+                    bottomSheetScaffoldState.bottomSheetState.hide()
+                }
+            }
+        ) {
+            Scaffold(
+                topBar = {
+                    JuiceTrackerTopAppBar()
+                },
+                floatingActionButton = {
+                    Column {
+                        JuiceTrackerFAB(
+                            onClick = {
+                                juiceTrackerViewModel.resetCurrentJuice()
+                                scope.launch { bottomSheetScaffoldState.bottomSheetState.expand() }
+                                controlSheet = true
+                            }
+                        )
+                        TareaTrackerFAB(
+                            onClick = {
+                                juiceTrackerViewModel.resetCurrentTarea()
+                                scopeTarea.launch { bottomSheetScaffoldStateTarea.bottomSheetState.expand()}
+                                controlSheet = false
+                            }
+                        )
+                    }
+
+                }
+            ) { contentPadding ->
+                Column(Modifier.padding(contentPadding)) {
+                    /*AdBanner(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                top = dimensionResource(R.dimen.padding_medium),
+                                bottom = dimensionResource(R.dimen.padding_small)
+                            )
+                    )*/
+                    JuiceTrackerList(
+                        juices = trackerState,
+                        onDelete = { juice -> juiceTrackerViewModel.deleteJuice(juice) },
+                        onUpdate = { juice ->
+                            juiceTrackerViewModel.updateCurrentJuice(juice)
+                            scope.launch {
+                                bottomSheetScaffoldState.bottomSheetState.expand()
+                            }
+                        },
                     )
-                    TareaTrackerFAB(
-                        onClick = {
-                            juiceTrackerViewModel.resetCurrentTarea()//resetCurrentJuice()
-                            scope.launch { bottomSheetScaffoldState.bottomSheetState.expand()}
-                        }
+                    NotaTrackerList(
+                        notas = trackerStateNota,
+                        onDelete = { nota -> juiceTrackerViewModel.deleteNota(nota) },
+                        onUpdate = { nota ->
+                            juiceTrackerViewModel.updateCurrentNota(nota)
+                            scope.launch {
+                                bottomSheetScaffoldState.bottomSheetState.expand()
+                            }
+                        },
                     )
                 }
-
-            }
-        ) { contentPadding ->
-            Column(Modifier.padding(contentPadding)) {
-                /*AdBanner(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            top = dimensionResource(R.dimen.padding_medium),
-                            bottom = dimensionResource(R.dimen.padding_small)
-                        )
-                )*/
-                JuiceTrackerList(
-                    juices = trackerState,
-                    onDelete = { juice -> juiceTrackerViewModel.deleteJuice(juice) },
-                    onUpdate = { juice ->
-                        juiceTrackerViewModel.updateCurrentJuice(juice)
-                        scope.launch {
-                            bottomSheetScaffoldState.bottomSheetState.expand()
-                        }
-                    },
-                )
             }
         }
     }

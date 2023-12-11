@@ -71,7 +71,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.juicetracker.ImagePicker
 import com.example.juicetracker.R
-import com.example.juicetracker.data.Model.Juice
+import com.example.juicetracker.data.Model.*
 import com.example.juicetracker.data.Model.JuiceColor
 //import com.example.juicetracker.mapas.location.CurrentLocationScreen
 import com.example.juicetracker.mapas.location.PermissionBox
@@ -116,7 +116,7 @@ fun EntryBottomSheet(
     content: @Composable () -> Unit,
 ) {
     // Recopilando el estado actual del jugo mediante un StateFlow
-    val juice by juiceTrackerViewModel.currentJuiceStream.collectAsState()
+    val nota by juiceTrackerViewModel.currentNotaStream.collectAsState()
     var controlmapa by remember { mutableStateOf(false) }
     var longitud by remember { mutableStateOf(0.0) }
     var latitud by remember { mutableStateOf(0.0) }
@@ -131,8 +131,8 @@ fun EntryBottomSheet(
                 SheetHeader(Modifier.padding(dimensionResource(R.dimen.padding_small)))
                 // Sección de formulario de la hoja inferior
                 SheetForm(
-                    juice = juice,
-                    onUpdateJuice = juiceTrackerViewModel::updateCurrentJuice,
+                    nota = nota,
+                    onUpdateNota = juiceTrackerViewModel::updateCurrentNota,
                     onCancel = onCancel,
                     onSubmit = onSubmit,
                     modifier = Modifier.padding(
@@ -167,8 +167,8 @@ fun SheetHeader(modifier: Modifier = Modifier) {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SheetForm(
-    juice: Juice,
-    onUpdateJuice: (Juice) -> Unit,
+    nota: Nota,
+    onUpdateNota: (Nota) -> Unit,
     onCancel: () -> Unit,
     onSubmit: () -> Unit,
     modifier: Modifier = Modifier
@@ -184,30 +184,30 @@ fun SheetForm(
         item {
             // Fila de entrada para el nombre del jugo
             TextInputRow(
-                inputLabel = stringResource(R.string.juice_name),
-                fieldValue = juice.name,
-                onValueChange = { name -> onUpdateJuice(juice.copy(name = name)) },
+                inputLabel = stringResource(R.string.nota_name),
+                fieldValue = nota.noteTitle,
+                onValueChange = { name -> onUpdateNota(nota.copy(noteTitle = name)) },
                 modifier = Modifier.fillMaxWidth(),
             )
         }
         item {
             // Fila de entrada para la descripción del jugo
             TextInputRow(
-                inputLabel = stringResource(R.string.juice_description),
-                fieldValue = juice.description,
-                onValueChange = { description -> onUpdateJuice(juice.copy(description = description)) },
+                inputLabel = stringResource(R.string.nota_description),
+                fieldValue = nota.noteBody,
+                onValueChange = { description -> onUpdateNota(nota.copy(noteBody = description)) },
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        item {
+        /*item {
             // Fila del selector de color para seleccionar el color del jugo
             ColorSpinnerRow(
-                colorSpinnerPosition = findColorIndex(juice.color),
+                colorSpinnerPosition = findColorIndex(nota.color),
                 onColorChange = { color ->
-                    onUpdateJuice(juice.copy(color = JuiceColor.values()[color].name))
+                    onUpdateNota(nota.copy(color = NotaColor.values()[color].name))
                 }
             )
-        }
+        }*/
         item {
             /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 AlarmasScreen(
@@ -223,7 +223,7 @@ fun SheetForm(
                     .padding(bottom = dimensionResource(R.dimen.padding_medium)),
                 onCancel = onCancel,
                 onSubmit = onSubmit,
-                submitButtonEnabled = juice.name.isNotEmpty(),
+                submitButtonEnabled = nota.noteTitle.isNotEmpty(),
             )
         }
         item {
@@ -345,11 +345,11 @@ fun InputRow(
     }
 }
 
-// Función para encontrar el índice de un color dado en el enum JuiceColor
-private fun findColorIndex(color: String): Int {
-    val juiceColor = JuiceColor.valueOf(color)
-    return JuiceColor.values().indexOf(juiceColor)
-}
+// Función para encontrar el índice de un color dado en el enum NotaColor
+/*private fun findColorIndex(color: String): Int {
+    val notaColor = NotaColor.valueOf(color)
+    return NotaColor.values().indexOf(notaColor)
+}*/
 
 //METODO TIPO BOTON PARA Las imagenes//Efren//
 @Composable

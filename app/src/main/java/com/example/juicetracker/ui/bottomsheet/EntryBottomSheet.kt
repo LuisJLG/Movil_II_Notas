@@ -15,15 +15,21 @@
  */
 package com.example.juicetracker.ui.bottomsheet
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresPermission
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 //import androidx.compose.foundation.layout.ColumnScopeInstance.align
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
@@ -41,8 +47,13 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -52,8 +63,16 @@ import com.example.juicetracker.ImagePicker
 import com.example.juicetracker.R
 import com.example.juicetracker.data.Model.Juice
 import com.example.juicetracker.data.Model.JuiceColor
-import com.example.juicetracker.mapas.location.CurrentLocationScreen
+//import com.example.juicetracker.mapas.location.CurrentLocationScreen
+import com.example.juicetracker.mapas.location.PermissionBox
+import com.example.juicetracker.mapas.mapasosmandroidcompose.OSMComposeMapa
 import com.example.juicetracker.ui.JuiceTrackerViewModel
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.util.Locale
 
 
@@ -131,7 +150,7 @@ fun SheetForm(
         verticalArrangement = Arrangement.SpaceBetween,
         //content =
     ) {
-        item {
+        /*item {
             // Fila de entrada para el nombre del jugo
             TextInputRow(
                 inputLabel = stringResource(R.string.juice_name),
@@ -148,8 +167,8 @@ fun SheetForm(
                 onValueChange = { description -> onUpdateJuice(juice.copy(description = description)) },
                 modifier = Modifier.fillMaxWidth()
             )
-        }
-        item {
+        }*/
+        /*item {
             // Fila del selector de color para seleccionar el color del jugo
             ColorSpinnerRow(
                 colorSpinnerPosition = findColorIndex(juice.color),
@@ -157,15 +176,15 @@ fun SheetForm(
                     onUpdateJuice(juice.copy(color = JuiceColor.values()[color].name))
                 }
             )
-        }
-        item {
+        }*/
+        /*item {
             /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 AlarmasScreen(
                     alarmScheduler = AlarmSchedulerImpl(applicationContext))
             }*/
             ImagePicker()
-        }
-        item {
+        }*/
+        /*item {
             // Fila de botones con botones de cancelar y enviar
             ButtonRow(
                 modifier = Modifier
@@ -175,7 +194,7 @@ fun SheetForm(
                 onSubmit = onSubmit,
                 submitButtonEnabled = juice.name.isNotEmpty(),
             )
-        }
+        }*/
         item {
             CurrentLocationScreen()
         }
@@ -363,6 +382,113 @@ fun ImageSelectionButton(
     ) {
 
         Text(text = "Seleccionar imagen")
+    }
+}
+
+@SuppressLint("MissingPermission")
+@Composable
+fun CurrentLocationScreen() {
+    val permissions = listOf(
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+    )
+    PermissionBox(
+        permissions = permissions,
+        requiredPermissions = listOf(permissions.first()),
+        onGranted = {
+            CurrentLocationContent(
+                usePreciseLocation = it.contains(Manifest.permission.ACCESS_FINE_LOCATION),
+            )
+        },
+    )
+}
+
+@RequiresPermission(
+    anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION],
+)
+@Composable
+fun CurrentLocationContent(usePreciseLocation: Boolean) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var controlmapa by remember { mutableStateOf(false) }
+    var longitud by remember { mutableStateOf(0.0) }
+    var latitud by remember { mutableStateOf(0.0) }
+    val locationClient = remember {
+        LocationServices.getFusedLocationProviderClient(context)
+    }
+    var locationInfo by remember {
+        mutableStateOf("")
+    }
+
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .animateContentSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Button(
+            onClick = {
+                // getting last known location is faster and minimizes battery usage
+                // This information may be out of date.
+                // Location may be null as previously no client has access location
+                // or location turned of in device setting.
+                // Please handle for null case as well as additional check can be added before using the method
+                scope.launch(Dispatchers.IO) {
+                    val result = locationClient.lastLocation.await()
+                    locationInfo = if (result == null) {
+                        "No last known location. Try fetching the current location first"
+                    } else {
+                        "Current location is \n" + "lat : ${result.latitude}\n" +
+                                "long : ${result.longitude}\n" + "fetched at ${System.currentTimeMillis()}"
+                    }
+                }
+            },
+        ) {
+            Text("Get last known location")
+        }
+
+        Button(
+            onClick = {
+                //To get more accurate or fresher device location use this method
+                scope.launch(Dispatchers.IO) {
+                    val priority = if (usePreciseLocation) {
+                        Priority.PRIORITY_HIGH_ACCURACY
+                    } else {
+                        Priority.PRIORITY_BALANCED_POWER_ACCURACY
+                    }
+                    val result = locationClient.getCurrentLocation(
+                        priority,
+                        CancellationTokenSource().token,
+                    ).await()
+                    result?.let { fetchedLocation ->
+                        locationInfo =
+                            "Current location is \n" + "lat : ${fetchedLocation.latitude}\n" +
+                                    "long : ${fetchedLocation.longitude}\n" + "fetched at ${System.currentTimeMillis()}"
+                        longitud = fetchedLocation.longitude
+                        latitud = fetchedLocation.latitude
+                    }
+                    controlmapa = true
+                }
+            },
+        ) {
+            Column {
+                Text(text = "Get current location")
+            }
+        }
+        Text(
+            text = locationInfo+"${controlmapa}",
+        )
+
+        Spacer(modifier = Modifier.height(190.dp))
+        if (controlmapa){
+            OSMComposeMapa(
+                longitud = longitud,
+                latitud = (latitud)
+            )
+        }
+
     }
 }
 

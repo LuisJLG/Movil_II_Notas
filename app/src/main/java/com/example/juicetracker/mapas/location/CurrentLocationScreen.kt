@@ -50,7 +50,7 @@ import kotlinx.coroutines.tasks.await
 
 @SuppressLint("MissingPermission")
 @Composable
-fun CurrentLocationScreen() {
+fun CurrentLocationScreen2() {
     val permissions = listOf(
         Manifest.permission.ACCESS_COARSE_LOCATION,
         Manifest.permission.ACCESS_FINE_LOCATION,

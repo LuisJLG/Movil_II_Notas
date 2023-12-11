@@ -92,7 +92,7 @@ fun EntryBottomSheet(
                         horizontal = dimensionResource(R.dimen.padding_medium)
                     )
                 )
-                CurrentLocationScreen()
+
             }
         }
     ) {
@@ -175,6 +175,9 @@ fun SheetForm(
                 onSubmit = onSubmit,
                 submitButtonEnabled = juice.name.isNotEmpty(),
             )
+        }
+        item {
+            CurrentLocationScreen()
         }
     }
 

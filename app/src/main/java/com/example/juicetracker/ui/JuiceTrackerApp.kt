@@ -92,7 +92,7 @@ fun JuiceTrackerApp(
                 }
             },
             onSubmit = {
-                juiceTrackerViewModel.saveJuice()
+                juiceTrackerViewModel.saveNota()
                 scopeTarea.launch {
                     bottomSheetScaffoldStateTarea.bottomSheetState.hide()
                 }
@@ -106,7 +106,7 @@ fun JuiceTrackerApp(
                     Column {
                         JuiceTrackerFAB(
                             onClick = {
-                                juiceTrackerViewModel.resetCurrentJuice()
+                                juiceTrackerViewModel.resetCurrentNota()
                                 scope.launch { bottomSheetScaffoldState.bottomSheetState.expand() }
                                 controlSheet = true
                             }
@@ -131,16 +131,16 @@ fun JuiceTrackerApp(
                                 bottom = dimensionResource(R.dimen.padding_small)
                             )
                     )*/
-                    /*TareaTrackerList(
-                        tareas = trackerStateTarea,
-                        onDelete = { tarea -> juiceTrackerViewModel.deleteTarea(tarea) },
-                        onUpdate = { tarea ->
-                            juiceTrackerViewModel.updateCurrentTarea(tarea)
-                            scopeTarea.launch {
+                    NotaTrackerList(
+                        notas = trackerStateNota,
+                        onDelete = { nota -> juiceTrackerViewModel.deleteNota(nota) },
+                        onUpdate = { nota ->
+                            juiceTrackerViewModel.updateCurrentNota(nota)
+                            scope.launch {
                                 bottomSheetScaffoldState.bottomSheetState.expand()
                             }
                         },
-                    )*/
+                    )
                 }
             }
         }
@@ -156,7 +156,7 @@ fun JuiceTrackerApp(
                 }
             },
             onSubmit = {
-                juiceTrackerViewModel.saveJuice()
+                juiceTrackerViewModel.saveNota()
                 scope.launch {
                     bottomSheetScaffoldState.bottomSheetState.hide()
                 }
@@ -170,7 +170,7 @@ fun JuiceTrackerApp(
                     Column {
                         JuiceTrackerFAB(
                             onClick = {
-                                juiceTrackerViewModel.resetCurrentJuice()
+                                juiceTrackerViewModel.resetCurrentNota()
                                 scope.launch { bottomSheetScaffoldState.bottomSheetState.expand() }
                                 controlSheet = true
                             }

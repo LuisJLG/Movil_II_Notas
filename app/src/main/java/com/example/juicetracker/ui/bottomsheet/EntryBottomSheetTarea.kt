@@ -17,8 +17,16 @@ package com.example.juicetracker.ui.bottomsheet
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.SystemClock
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -36,6 +44,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -47,6 +56,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -69,10 +79,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.NotificationCompat
 import com.example.juicetracker.ImagePicker
 import com.example.juicetracker.R
+import com.example.juicetracker.alarmas.AlarmSchedulerImpl
+import com.example.juicetracker.alarmas.AlarmasScreen
+/*import com.example.juicetracker.alarmas.AlarmSchedulerImpl
+import com.example.juicetracker.alarmas.AlarmasScreen*/
+import com.example.juicetracker.contexto.contecsto
 import com.example.juicetracker.data.Model.Tarea
-import com.example.juicetracker.data.Model.JuiceColor
 import com.example.juicetracker.mapas.location.PermissionBox
 import com.example.juicetracker.ui.JuiceTrackerViewModel
 import com.google.android.gms.location.LocationServices
@@ -92,6 +107,7 @@ import kotlinx.coroutines.tasks.await
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.CopyrightOverlay
+import java.time.LocalDateTime
 import java.util.Locale
 
 
@@ -164,7 +180,12 @@ fun SheetFormTarea(
     onSubmit: () -> Unit,
     modifier: Modifier = Modifier
 ){
-
+    var secondText by remember {
+        mutableStateOf("")
+    }
+    val estado by remember {
+        mutableStateOf(contecsto.getApplicationContext())
+    }
     var controlmapa by remember { mutableStateOf(false) }
     var longitud by remember { mutableStateOf(0.0) }
     var latitud by remember { mutableStateOf(0.0) }
@@ -218,8 +239,12 @@ fun SheetFormTarea(
         }
 
         item {
-            Spacer(modifier = Modifier.height(90.dp))
+            alarmafinal(valor = estado)
         }
+
+        /*item {
+            Spacer(modifier = Modifier.height(90.dp))
+        }*/
 
         item {
             // Fila de botones con botones de cancelar y enviar
@@ -266,7 +291,7 @@ fun ButtonRowTarea(
 
 
     }
-    Row(
+    /*Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(24.dp)
     ) {
@@ -326,7 +351,7 @@ fun ButtonRowTarea(
             println("Imagen seleccionada: $selectedUri")
         }
 
-    }
+    }*/
 }
 
 // Función componible para una fila con un campo de entrada de texto
@@ -636,5 +661,16 @@ fun OSMComposeMapa(
 
         }
         //}
+    }
+}
+
+@Composable
+fun alarmafinal(valor: Context) {
+    val estado = valor
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        AlarmasScreen(
+            alarmScheduler = AlarmSchedulerImpl(estado)
+        )
     }
 }

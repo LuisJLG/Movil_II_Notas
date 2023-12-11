@@ -18,10 +18,7 @@ package com.example.juicetracker.ui
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
@@ -35,17 +32,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.juicetracker.R
+import com.example.juicetracker.alarmas.AlarmSchedulerImpl
+import com.example.juicetracker.alarmas.AlarmasScreen
+//import com.example.juicetracker.alarmas.AlarmasScreen
+import com.example.juicetracker.contexto.contecsto
+
 import com.example.juicetracker.ui.bottomsheet.EntryBottomSheet
 import com.example.juicetracker.ui.bottomsheet.EntryBottomSheetTarea
-import com.example.juicetracker.ui.homescreen.AdBanner
 import com.example.juicetracker.ui.homescreen.JuiceTrackerFAB
 import com.example.juicetracker.ui.homescreen.JuiceTrackerList
 import com.example.juicetracker.ui.homescreen.JuiceTrackerTopAppBar
 import com.example.juicetracker.ui.homescreen.TareaTrackerFAB
-import com.example.juicetracker.ui.homescreen.TareaTrackerList
 import com.example.juicetracker.ui.homescreen.NotaTrackerList
 
 import kotlinx.coroutines.launch
@@ -57,6 +55,9 @@ fun JuiceTrackerApp(
     juiceTrackerViewModel: JuiceTrackerViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
+    val estado by remember {
+        mutableStateOf(contecsto.getApplicationContext())
+    }
     var controlSheet by remember { mutableStateOf(true) }
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(
@@ -219,4 +220,6 @@ fun JuiceTrackerApp(
             }
         }
     }
+    /*val applicationContext=contecsto.getApplicationContext()
+    AlarmasScreen(alarmScheduler = AlarmSchedulerImpl(applicationContext))*/
 }

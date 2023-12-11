@@ -15,6 +15,8 @@
  */
 package com.example.juicetracker.ui
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -34,6 +36,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.juicetracker.R
 import com.example.juicetracker.ui.bottomsheet.EntryBottomSheet
+import com.example.juicetracker.ui.bottomsheet.EntryBottomSheetTarea
 import com.example.juicetracker.ui.homescreen.AdBanner
 import com.example.juicetracker.ui.homescreen.JuiceTrackerFAB
 import com.example.juicetracker.ui.homescreen.JuiceTrackerList
@@ -41,6 +44,7 @@ import com.example.juicetracker.ui.homescreen.JuiceTrackerTopAppBar
 import com.example.juicetracker.ui.homescreen.TareaTrackerFAB
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JuiceTrackerApp(

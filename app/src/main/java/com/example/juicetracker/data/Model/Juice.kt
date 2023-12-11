@@ -60,8 +60,9 @@ data class Tarea(
     val tareaBody: String,
     val estatus: Int,
     val tareatvDate: String,
+    var latitud: Double,
+    var longitud: Double,
     val tareaDateFinal: String
-
 )
 
 enum class JuiceColor(val color: Color, @StringRes val label: Int) {

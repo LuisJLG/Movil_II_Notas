@@ -35,7 +35,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.CopyrightOverlay
 
 @Composable
-fun OSMComposeMapa(
+fun OSMComposeMapa2(
     modifier: Modifier = Modifier.fillMaxSize(1f/3f),
     latitud: Double,
     longitud: Double

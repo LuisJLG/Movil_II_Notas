@@ -21,7 +21,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.juicetracker.data.Model.*
 
-@Database(entities = [Juice::class, Nota::class, Tarea::class, Multimedia::class], version = 3)
+@Database(entities = [Juice::class, Nota::class, Tarea::class, Multimedia::class], version = 4)
 abstract class AppDatabase: RoomDatabase() {
     abstract fun juiceDao(): JuiceDao
     abstract fun multimediaDao(): MultimediaDao

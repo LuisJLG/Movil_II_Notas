@@ -38,7 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.juicetracker.mapas.mapasosmandroidcompose.OSMComposeMapa
+import com.example.juicetracker.mapas.mapasosmandroidcompose.OSMComposeMapa2
 
 
 import com.google.android.gms.location.LocationServices
@@ -144,13 +144,12 @@ fun CurrentLocationContent(usePreciseLocation: Boolean) {
             text = locationInfo+"${controlmapa}",
         )
 
-        Spacer(modifier = Modifier.height(190.dp))
-        if (controlmapa){
+        Spacer(modifier = Modifier.height(90.dp))
+        /*if (controlmapa){
             OSMComposeMapa(
                 longitud = longitud,
                 latitud = (latitud)
             )
-        }
-
+        }*/
     }
 }

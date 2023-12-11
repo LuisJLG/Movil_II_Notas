@@ -18,20 +18,26 @@ package com.example.juicetracker.ui.bottomsheet
 import android.Manifest
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 //import androidx.compose.foundation.layout.ColumnScopeInstance.align
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
@@ -45,6 +51,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,32 +60,50 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.juicetracker.ImagePicker
 import com.example.juicetracker.R
 import com.example.juicetracker.data.Model.Juice
 import com.example.juicetracker.data.Model.JuiceColor
 //import com.example.juicetracker.mapas.location.CurrentLocationScreen
 import com.example.juicetracker.mapas.location.PermissionBox
-import com.example.juicetracker.mapas.mapasosmandroidcompose.OSMComposeMapa
+//import com.example.juicetracker.mapas.mapasosmandroidcompose.OSMComposeMapa
 import com.example.juicetracker.ui.JuiceTrackerViewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.utsman.osmandcompose.DefaultMapProperties
+import com.utsman.osmandcompose.Marker
+import com.utsman.osmandcompose.OpenStreetMap
+import com.utsman.osmandcompose.Polyline
+import com.utsman.osmandcompose.ZoomButtonVisibility
+import com.utsman.osmandcompose.rememberCameraState
+import com.utsman.osmandcompose.rememberMarkerState
+import com.utsman.osmandcompose.rememberOverlayManagerState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.overlay.CopyrightOverlay
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 
 
 
 // Optando por la API ExperimentalMaterial3
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 // Función componible para la interfaz de usuario de la hoja inferior
 @Composable
@@ -92,6 +117,9 @@ fun EntryBottomSheet(
 ) {
     // Recopilando el estado actual del jugo mediante un StateFlow
     val juice by juiceTrackerViewModel.currentJuiceStream.collectAsState()
+    var controlmapa by remember { mutableStateOf(false) }
+    var longitud by remember { mutableStateOf(0.0) }
+    var latitud by remember { mutableStateOf(0.0) }
 
     // Construyendo el BottomSheetScaffold con encabezado, formulario y contenido personalizado
     BottomSheetScaffold(
@@ -136,6 +164,7 @@ fun SheetHeader(modifier: Modifier = Modifier) {
 }
 
 // Función componible para el contenido del formulario de la hoja inferior
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SheetForm(
     juice: Juice,
@@ -144,13 +173,15 @@ fun SheetForm(
     onSubmit: () -> Unit,
     modifier: Modifier = Modifier
 ){
-
+    var controlmapa by remember { mutableStateOf(false) }
+    var longitud by remember { mutableStateOf(0.0) }
+    var latitud by remember { mutableStateOf(0.0) }
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceBetween,
         //content =
     ) {
-        /*item {
+        item {
             // Fila de entrada para el nombre del jugo
             TextInputRow(
                 inputLabel = stringResource(R.string.juice_name),
@@ -167,8 +198,8 @@ fun SheetForm(
                 onValueChange = { description -> onUpdateJuice(juice.copy(description = description)) },
                 modifier = Modifier.fillMaxWidth()
             )
-        }*/
-        /*item {
+        }
+        item {
             // Fila del selector de color para seleccionar el color del jugo
             ColorSpinnerRow(
                 colorSpinnerPosition = findColorIndex(juice.color),
@@ -176,15 +207,15 @@ fun SheetForm(
                     onUpdateJuice(juice.copy(color = JuiceColor.values()[color].name))
                 }
             )
-        }*/
-        /*item {
+        }
+        item {
             /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 AlarmasScreen(
                     alarmScheduler = AlarmSchedulerImpl(applicationContext))
             }*/
             ImagePicker()
-        }*/
-        /*item {
+        }
+        item {
             // Fila de botones con botones de cancelar y enviar
             ButtonRow(
                 modifier = Modifier
@@ -194,9 +225,22 @@ fun SheetForm(
                 onSubmit = onSubmit,
                 submitButtonEnabled = juice.name.isNotEmpty(),
             )
+        }
+        item {
+            CurrentLocationScreen(){ value1, value2, value3 ->
+            longitud = value1 // Actualiza el primer valor recibido en el componente padre
+            latitud = value2 // Actualiza el segundo valor recibido en el componente padre
+            controlmapa = value3}
+        }
+        /*item { if (controlmapa){
+                OSMComposeMapa(
+                    longitud = longitud,
+                    latitud = (latitud)
+                )
+            }
         }*/
         item {
-            CurrentLocationScreen()
+            Spacer(modifier = Modifier.height(90.dp))
         }
     }
 
@@ -245,54 +289,7 @@ fun ButtonRow(
 
 
     }
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
 
-        //ACTUA COMO UN BOTON
-        ImageSelectionButton { selectedUri ->
-
-            println("Imagen seleccionada: $selectedUri")
-        }
-
-    }
-    Row(
-            modifier = modifier,
-    horizontalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-
-        //ACTUA COMO UN BOTON
-        ImageSelectionButton { selectedUri ->
-
-            println("Imagen seleccionada: $selectedUri")
-        }
-
-    }
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-
-        //ACTUA COMO UN BOTON
-        ImageSelectionButton { selectedUri ->
-
-            println("Imagen seleccionada: $selectedUri")
-        }
-
-    }
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-
-        //ACTUA COMO UN BOTON
-        ImageSelectionButton { selectedUri ->
-
-            println("Imagen seleccionada: $selectedUri")
-        }
-
-    }
 }
 
 // Función componible para una fila con un campo de entrada de texto
@@ -385,29 +382,43 @@ fun ImageSelectionButton(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("MissingPermission")
 @Composable
-fun CurrentLocationScreen() {
+fun CurrentLocationScreen(onValuesReceived: (Double, Double, Boolean) -> Unit) {
+    var controlmapa by remember { mutableStateOf(false) }
+    var longitud by remember { mutableStateOf(0.0) }
+    var latitud by remember { mutableStateOf(0.0) }
     val permissions = listOf(
         Manifest.permission.ACCESS_COARSE_LOCATION,
         Manifest.permission.ACCESS_FINE_LOCATION,
     )
     PermissionBox(
+
         permissions = permissions,
         requiredPermissions = listOf(permissions.first()),
         onGranted = {
             CurrentLocationContent(
                 usePreciseLocation = it.contains(Manifest.permission.ACCESS_FINE_LOCATION),
-            )
+            ){
+                 value1, value2, value3 ->
+                    longitud = value1 // Actualiza el primer valor recibido en el componente padre
+                    latitud = value2 // Actualiza el segundo valor recibido en el componente padre
+                    controlmapa = value3
+
+                 onValuesReceived(longitud, latitud, controlmapa)
+            }
         },
+
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @RequiresPermission(
     anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION],
 )
 @Composable
-fun CurrentLocationContent(usePreciseLocation: Boolean) {
+fun CurrentLocationContent(usePreciseLocation: Boolean, onValuesReceived: (Double, Double, Boolean) -> Unit) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var controlmapa by remember { mutableStateOf(false) }
@@ -428,7 +439,7 @@ fun CurrentLocationContent(usePreciseLocation: Boolean) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Button(
+        /*Button(
             onClick = {
                 // getting last known location is faster and minimizes battery usage
                 // This information may be out of date.
@@ -447,7 +458,7 @@ fun CurrentLocationContent(usePreciseLocation: Boolean) {
             },
         ) {
             Text("Get last known location")
-        }
+        }*/
 
         Button(
             onClick = {
@@ -463,13 +474,20 @@ fun CurrentLocationContent(usePreciseLocation: Boolean) {
                         CancellationTokenSource().token,
                     ).await()
                     result?.let { fetchedLocation ->
+                        /*val milliseconds = System.currentTimeMillis()
+                        val localDate = Instant.ofEpochMilli(milliseconds)
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate()
+                        val formattedDate = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").format(localDate)
+                        */
                         locationInfo =
-                            "Current location is \n" + "lat : ${fetchedLocation.latitude}\n" +
+                            "Localización actual es \n" + "lat : ${fetchedLocation.latitude}\n" +
                                     "long : ${fetchedLocation.longitude}\n" + "fetched at ${System.currentTimeMillis()}"
                         longitud = fetchedLocation.longitude
                         latitud = fetchedLocation.latitude
                     }
                     controlmapa = true
+                    onValuesReceived(longitud, latitud, controlmapa)
                 }
             },
         ) {
@@ -481,14 +499,113 @@ fun CurrentLocationContent(usePreciseLocation: Boolean) {
             text = locationInfo+"${controlmapa}",
         )
 
-        Spacer(modifier = Modifier.height(190.dp))
-        if (controlmapa){
+        //Spacer(modifier = Modifier.height(190.dp))
+        /*if (controlmapa){
             OSMComposeMapa(
                 longitud = longitud,
                 latitud = (latitud)
             )
-        }
+        }*/
 
     }
 }
 
+/*@Composable
+fun OSMComposeMapa(
+    modifier: Modifier = Modifier.fillMaxSize(),
+    latitud: Double,
+    longitud: Double
+
+    //viewModel: OpenRouteServiceViewModel
+) {
+
+    //val rutaUiState = viewModel.directUiState
+
+    // define properties with remember with default value
+    var mapProperties by remember {
+        mutableStateOf(DefaultMapProperties)
+    }
+
+    // define marker state
+    val depokMarkerState = rememberMarkerState(
+        geoPoint = GeoPoint(latitud, longitud),
+        rotation = 50f // default is 0f
+    )
+
+
+    // setup mapProperties in side effect
+    SideEffect {
+        mapProperties = mapProperties
+            .copy(isTilesScaledToDpi = true)
+            .copy(tileSources = TileSourceFactory.MAPNIK)
+            .copy(isEnableRotationGesture = true)
+            .copy(zoomButtonVisibility = ZoomButtonVisibility.SHOW_AND_FADEOUT)
+    }
+
+
+    // define camera state
+    val cameraState = rememberCameraState {
+        geoPoint = GeoPoint(latitud, longitud)
+        zoom = 16.0 // optional, default is 5.0
+    }
+
+
+    /*viewModel.directions_get("driving-car",
+        GeoPoint(20.139261336104898, -101.15026781862757),
+       GeoPoint(20.142110828753893, -101.1787275290486),
+        )
+    */
+    //Log.d("GIVO",rutaUiState.value.toString())
+    // define polyline
+    var geoPointPoluLyne = remember {
+        listOf(
+            GeoPoint(20.1389,-101.15088),
+            GeoPoint(20.1434,-101.1498),
+            GeoPoint(20.14387,-101.15099),
+            GeoPoint(20.14395,-101.15128),
+            GeoPoint(20.14411,-101.15186)
+        )
+        //rutaUiState.value.resp?.features[0].geometry.coordinates.map { GeoPoint(it[0],it[1]) }
+    }
+
+
+
+    val overlayManagerState = rememberOverlayManagerState()
+
+    val ctx = LocalContext.current
+    //Agregar nodo Mapa
+
+    OpenStreetMap(cameraState = cameraState  ,
+        properties = mapProperties,
+        overlayManagerState = overlayManagerState,
+        onFirstLoadListener = {
+            val copyright = CopyrightOverlay(ctx)
+            overlayManagerState.overlayManager.add(copyright) // add another overlay in this listener
+        },
+        modifier = modifier.scale(.8f)
+    )
+    {
+        Marker(state = depokMarkerState, title="${latitud}", snippet = "${longitud}") {
+            // create info window node
+            Column(
+                modifier = Modifier
+                    .size(100.dp)
+                    .background(color = Color.Gray, shape = RoundedCornerShape(7.dp)),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // setup content of info window
+                Text(text = it.title)
+                Text(text = it.snippet, fontSize = 10.sp)
+            }
+
+        }
+        //if(rutaUiState.value.resp!=null){
+        //  geoPointPoluLyne = rutaUiState.value.resp!!.features[0].geometry.coordinates.map { GeoPoint(it[1],it[0]) }
+        Polyline(geoPoints = geoPointPoluLyne) {
+
+        }
+        //}
+    }
+}
+*/

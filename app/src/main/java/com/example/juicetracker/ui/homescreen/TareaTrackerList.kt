@@ -112,7 +112,7 @@ fun DeleteButtonTarea(onDelete: () -> Unit, modifier: Modifier = Modifier) {
         )
     }
 }
-
+/*
 @Preview
 @Composable
 fun TareaTrackerListPreview() {
@@ -130,4 +130,4 @@ fun TareaTrackerListPreview() {
             onDelete = {},
             onUpdate = {})
     }
-}
+}*/

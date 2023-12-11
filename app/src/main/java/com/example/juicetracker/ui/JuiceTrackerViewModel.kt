@@ -59,6 +59,8 @@ class JuiceTrackerViewModel(
         "",
         0,
         "",
+        0.0,
+        0.0,
         ""
     )
 
